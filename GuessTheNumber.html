@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guess My Number</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    font-family:Segoe UI, sans-serif;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#1d2671,#c33764);
+}
+
+#game{
+    width:90%;
+    max-width:420px;
+    background:linear-gradient(135deg,#ffecd2,#fcb69f);
+    padding:30px;
+    border-radius:25px;
+    text-align:center;
+    box-shadow:0 30px 60px rgba(0,0,0,0.4);
+    animation:float 3s ease-in-out infinite;
+}
+
+@keyframes float{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-10px)}
+}
+
+h1{color:#ff0055}
+h2{font-size:16px}
+
+#secretBox{
+    width:100px;
+    margin:20px auto;
+    font-size:45px;
+    padding:15px;
+    background:#111;
+    color:white;
+    border-radius:15px;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    font-size:18px;
+    border:none;
+    border-radius:10px;
+    text-align:center;
+    outline:none;
+}
+
+button{
+    margin-top:15px;
+    padding:12px 25px;
+    font-size:18px;
+    border:none;
+    border-radius:30px;
+    cursor:pointer;
+    background:linear-gradient(135deg,#43cea2,#185a9d);
+    color:white;
+    transition:0.3s;
+}
+
+button:hover{
+    transform:scale(1.07);
+}
+
+#msg{
+    margin-top:15px;
+    font-weight:bold;
+}
+
+.stats{
+    display:flex;
+    justify-content:space-between;
+    margin-top:20px;
+}
+
+/* LOSE MODAL */
+#overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.75);
+    display:none;
+    justify-content:center;
+    align-items:center;
+}
+
+#loseBox{
+    background:linear-gradient(135deg,#ff416c,#ff4b2b);
+    color:white;
+    padding:30px;
+    border-radius:25px;
+    text-align:center;
+    width:80%;
+    max-width:300px;
+    animation:pop 0.5s ease forwards;
+}
+
+@keyframes pop{
+    0%{transform:scale(0)}
+    80%{transform:scale(1.1)}
+    100%{transform:scale(1)}
+}
+</style>
+</head>
+
+<body>
+
+<div id="game">
+    <h1>🎯 Guess My Number</h1>
+    <h2>Choose a number between <b>1 & 100</b></h2>
+
+    <div id="secretBox">?</div>
+
+    <input type="number" id="guess" placeholder="1 to 100">
+    <button onclick="checkGuess()">Check</button>
+
+    <p id="msg">You have 10 lives ❤️</p>
+
+    <div class="stats">
+        <p>❤️ Lives: <span id="lives">10</span></p>
+        <p>🏆 Highscore: <span id="high">0</span></p>
+    </div>
+
+    <button onclick="restart()">🔄 Restart</button>
+</div>
+
+<!-- LOSE MODAL -->
+<div id="overlay">
+    <div id="loseBox">
+        <h1>💥 YOU LOST!</h1>
+        <p>The number was:</p>
+        <h2 id="answer"></h2>
+        <button onclick="restart()">Try Again</button>
+    </div>
+</div>
+
+<script>
+let secret;
+let lives;
+let highScore = 0;
+let gameOver = false;
+
+startGame();
+
+function startGame(){
+    secret = Math.floor(Math.random() * 100) + 1;
+    lives = 10;
+    gameOver = false;
+
+    document.getElementById("lives").textContent = lives;
+    document.getElementById("secretBox").textContent = "?";
+    document.getElementById("msg").textContent = "You have 10 lives ❤️";
+    document.getElementById("guess").value = "";
+    document.getElementById("overlay").style.display = "none";
+}
+
+function checkGuess(){
+    if(gameOver) return;
+
+    const input = document.getElementById("guess");
+    const value = Number(input.value);
+
+    if(!value || value < 1 || value > 100){
+        document.getElementById("msg").textContent =
+            "⚠️ Enter a number between 1 and 100!";
+        return;
+    }
+
+    if(value === secret){
+        document.getElementById("msg").textContent = "🎉 You guessed it right!";
+        document.getElementById("secretBox").textContent = secret;
+        gameOver = true;
+
+        if(lives > highScore){
+            highScore = lives;
+            document.getElementById("high").textContent = highScore;
+        }
+    } else {
+        lives--;
+        document.getElementById("lives").textContent = lives;
+
+        document.getElementById("msg").textContent =
+            value > secret ? "📈 Too High!" : "📉 Too Low!";
+
+        if(lives === 0){
+            endGame();
+        }
+    }
+}
+
+function endGame(){
+    gameOver = true;
+    document.getElementById("answer").textContent = secret;
+    document.getElementById("overlay").style.display = "flex";
+}
+
+function restart(){
+    startGame();
+}
+</script>
+
+</body>
+</html>
